@@ -1,0 +1,772 @@
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const app = express();
+
+app.use(cors());
+app.options('*', cors());
+
+const Pool = require('pg').Pool
+const db = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'leaflet_2020',
+  password: '1234',
+});
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+app.use(express.static(__dirname + '/www'));
+app.listen(3000, () => {
+  console.log('run on port 3000..')
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+select  pv_th,count(*) ,ST_AsGeoJSON(b.geom) AS geojson 
+   from modis_join a 
+   inner join province b on a.pv_th = b.pv_tn 
+   group by pv_th ,b.geom order by count desc limit 100 
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+app.get('/api_province', (req, res) => {
+   sql = '  ';
+    let jsonFeatures = [];
+   db.query(sql).then((data) => {
+       var rows = data.rows;
+       rows.forEach((e) => {
+           let feature = {
+               type: 'Feature',
+               geometry: JSON.parse(e.geojson),
+               properties: e
+           };
+           jsonFeatures.push(feature);
+       });
+       let geoJson = {
+           type: 'FeatureCollection',
+           features: jsonFeatures
+       };
+       res.status(200).json(geoJson);
+   });
+ 
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Leaflet Dashboard Hotspot</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container-fluid">
+      <div class="row content">
+          <div class="col-sm-3 sidenav">
+              test
+          </div>
+          <div class="col-sm-6">
+              test
+          </div>
+          <div class="col-sm-3 sidenav">
+              test
+          </div>
+      </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+@import url('https://fonts.googleapis.com/css?family=Kanit:200&display=swap');
+body {
+    font-family: 'Kanit', sans-serif;
+    color: #ffffff;
+    background-color: #333333;
+}
+.kanit{
+    font-family: 'Kanit', sans-serif;
+}
+.row.content {
+    height: 100vh
+}
+.sidenav {
+    background-color: #333333;
+    max-height: 100vh;
+    height: 100vh;
+    overflow-y: scroll;
+}
+@media screen and (max-width: 767px) {
+  .sidenav {
+      height: auto;
+  }
+  .row.content {
+      height: auto;
+  }
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var mymap = L.map('mapid').setView([51.505, -0.09], 13);
+
+var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(mymap);
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+$.getJSON("/api_province", function (data) {
+   console.log(data);
+
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+function style(feature) {
+   return {
+       weight: 1,
+       opacity: 1,
+       color: '#ecf2f9',
+       dashArray: '3',
+       fillOpacity: 1,
+       fillColor: 
+   };
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+function getColor(d) {
+   return d > 1000 ? '#800026' :
+       d > 500 ? '#BD0026' :
+           d > 200 ? '#E31A1C' :
+               d > 100 ? '#FC4E2A' :
+                   d > 50 ? '#FD8D3C' :
+                       d > 20 ? '#FEB24C' :
+                           d > 10 ? '#FED976' :
+                               '#FFEDA0';
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var categories = []
+var data_chart = []
+for (var i = 0; i < 10; i++) {
+   categories.push(data.features[i].properties.pv_th);
+   data_chart.push(parseInt(data.features[i].properties.count));
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+Highcharts.chart('chart-container', {
+   chart: {
+       backgroundColor: {
+           stops: [
+               [0, '#2a2a2b'],
+               [1, '#3e3e40']
+           ]
+       },
+       type: 'column'
+   },
+   title: {
+       text: ''
+   },
+   legend: {
+       itemStyle: {
+           'color': '#ffffff',
+           'font-family': 'Kanit'
+       }
+   },
+   xAxis: {
+       categories: categories,
+       labels: {
+           style: {
+               color: '#ffffff',
+           }
+       },
+       crosshair: true
+   },
+   yAxis: {
+       title: {
+           text: '',
+           style: {
+               color: '#ffffff',
+           }
+       }, labels: {
+           style: {
+               color: '#ffffff',
+           }
+       },
+   },
+   exporting: {
+       enabled: false
+   },
+   credits: {
+       enabled: false
+   },
+   tooltip: {
+       shared: true,
+       valueSuffix: ' point'
+   },
+   plotOptions: {
+       column: {
+           pointPadding: 0.2,
+           borderWidth: 0
+       }
+   },
+   series: [{
+       name: 'MODIS',
+       data: data_chart,
+       color: '#F0AC4E'
+ 
+   }]
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<div class="col-sm-3 sidenav">
+   <div id="chart-container"></div>
+   <table class="table">
+       <thead>
+           <tr>
+               <th>จังหวัด</th>
+               <th>จุดความร้อน</th>
+           </tr>
+       </thead>
+       <tbody id="tb_data">
+       </tbody>
+   </table>
+</div>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var tb_data = ''
+
+tb_data += '<tr>  <td> ' + data.features[i].properties.pv_th + '</td >  <td>' + data.features[i].properties.count + '</td>  </tr > '
+ 
+document.getElementById("tb_data").innerHTML = tb_data
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+ <div class="img-p0">
+       <img src="http://mapedia.co.th/assets/images/logo_2.png" alt="" width="30%"><br>
+       <h4 class="card-header">
+           <b>
+               < Leaflet Dashboard Hotspot />
+           </b>
+       </h4>
+   </div>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
+   z-index: 2;
+   color: #fff;
+   background-color: #4b4b4b;
+   border-color: #525252;
+   margin-bottom: 10px;
+   border-radius: 10px;
+}
+.img-p0{
+   text-align: center;
+   margin-bottom: 10px;
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<div class="list-group-item list-group-item-action flex-column align-items-start active" id="thai_count">
+    <h5 class="card-header" id="all_point">จำนวนจุดความร้อนทั้งหมด</h5>
+</div>
+<div class="list-group-item list-group-item-action flex-column align-items-start active"
+    id="thai_count">
+    <h5 class="card-header">ค้นหาข้อมูล</h5>
+    <div class="card-body">
+        <form id="form_query">
+            <div class="form-group">
+                <label for="email">จังหวัด :</label>
+
+                <select name="province" class="form-control" id="list_province">
+                    <option value=""></option>
+                </select>
+
+            </div>
+            <div class="form-group">
+                <label for="pwd">ช่วงเวลาเริ่มต้น :</label>
+
+                <input type="date" class="form-control" name="start_date" value="2020-01-01">
+
+            </div>
+            <div class="form-group">
+                <label for="pwd">ช่วงเวลาสิ้นสุด :</label>
+
+                <input type="date" class="form-control" name="end_date" value="2020-04-01">
+
+            </div>
+            <br>
+            <button type="submit" class="btn btn-warning btn-block">Submit</button>
+        </form>
+    </div>
+</div>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var all_point = []
+  for (var i = 0; i < data.features.length; i++) {
+      all_point.push(data.features[i].properties.count)
+  }
+  var sum_point = eval(all_point.join('+'))
+  document.getElementById("all_point").innerHTML = 'จำนวนจุดความร้อนทั้งหมด : ' + sum_point + ' จุด'
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var option_province = '<option value="">ทั้งหมด</option>'
+ 
+option_province += '<option value="' + data.features[i].properties.pv_th + '">' + data.features[i].properties.pv_th + '</option> <br>'
+ 
+document.getElementById("list_province").innerHTML = option_province
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+$(document).ready(function () {
+   var div = L.DomUtil.create('div', 'info legend'),
+       grades = [10, 20, 100, 200, 500, 1000],
+       labels = [],
+       from, to;
+   document.getElementById("custom-map-controls").innerHTML = labels;
+   for (var i = 0; i < grades.length; i++) {
+       from = grades[i];
+       to = grades[i + 1] - 1;
+       labels.push(
+           '<i style="background:' + getColor(from + 0.5) + '"></i> ' + from + (to ? '&ndash;' + to : '+ '));
+   }
+   div.innerHTML = labels.join('<br>');
+   document.getElementById("custom-map-controls").innerHTML = labels.join('<br>');
+   return div;
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<div class="list-group-item list-group-item-action flex-column align-items-start active">
+   <div id="custom-map-controls" class="legend "></div>
+</div>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+.legend {
+text-align: left;
+line-height: 20px;
+color: #ffffff;
+}
+
+.legend i {
+width: 18px;
+height: 18px;
+float: left;
+margin-right: 8px;
+opacity: 0.9;
+}
+
+.legend .colorcircle {
+border-radius: 50%;
+width: 15px;
+height: 15px;
+margin-top: 0px;
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+$("#form_query").submit(function (event) {
+   event.preventDefault();
+
+   var province = event.target.province.value
+   var start_date = event.target.start_date.value
+   var end_date = event.target.end_date.value
+
+
+ })
+ 
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+$.ajax({
+   url: ' ',
+   method: 'post',
+   data: ({
+       province: province,
+       start_date: start_date,
+       end_date: end_date
+   }),
+   success: function (data) {
+ 
+   }, error: function () {
+       console.log('error  data!');
+   }
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+select  pv_th,count(*) ,ST_AsGeoJSON(b.geom) AS geojson 
+       from modis_join a 
+       inner join province b on a.pv_th = b.pv_tn
+       where a.pv_th like $1 and acq_date between  $2 and $3
+       group by pv_th ,b.geom order by count desc limit 100;
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+app.post('/province_search', async (req, res) => {
+   const {
+       province,
+       start_date,
+       end_date
+   } = req.body;
+    const sql = {
+       text: 'select  pv_th,count(*) ,ST_AsGeoJSON(b.geom) AS geojson \
+       from modis_join a  \
+       inner join province b on a.pv_th = b.pv_tn \
+       where a.pv_th like $1 and acq_date between  $2 and $3 \
+       group by pv_th ,b.geom order by count desc limit 100;',
+       values: [`%${province}%`, `${start_date}`, `${end_date}`],
+   }
+    let jsonFeatures = [];
+   db.query(sql).then((data) => {
+       var rows = data.rows;
+       rows.forEach((e) => {
+           let feature = {
+               type: 'Feature',
+               geometry: JSON.parse(e.geojson),
+               properties: e
+           };
+           jsonFeatures.push(feature);
+       });
+       let geoJson = {
+           type: 'FeatureCollection',
+           features: jsonFeatures
+       };
+       res.status(200).json(geoJson);
+   });
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+   var geojson = L.geoJson(data, {
+       style: style
+   })
+   geojson.addTo(map_hotspot);
+   mymap.fitBounds(geojson.getBounds())
+ 
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var categories = []
+var data_chart = []
+var tb_data = ''
+for (var i = 0; i < data.features.length; i++) {
+   categories.push(data.features[i].properties.pv_th);
+   data_chart.push(parseInt(data.features[i].properties.count));
+   tb_data += '<tr>  <td> ' + data.features[i].properties.pv_th + '</td >  <td>' + data.features[i].properties.count + '</td>  </tr > '
+}
+document.getElementById("tb_data").innerHTML = tb_data
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var all_point = []
+for (var i = 0; i < data.features.length; i++) {
+   all_point.push(data.features[i].properties.count)
+}
+ 
+var sum_point = eval(all_point.join('+'))
+document.getElementById("all_point").innerHTML = 'จำนวนจุดความร้อนทั้งหมด : ' + sum_point + ' จุด'
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+Highcharts.chart('chart-container', {
+   chart: {
+       backgroundColor: {
+           stops: [
+               [0, '#2a2a2b'],
+               [1, '#3e3e40']
+           ]
+       },
+       type: 'column'
+   },
+   title: {
+       text: ''
+   },
+   legend: {
+       itemStyle: {
+           'color': '#ffffff',
+           'font-family': 'Kanit'
+       }
+   },
+   xAxis: {
+       categories: categories,
+       labels: {
+           style: {
+               color: '#ffffff',
+           }
+       },
+       crosshair: true
+   },
+   yAxis: {
+       title: {
+           text: '',
+           style: {
+               color: '#ffffff',
+           }
+       }, labels: {
+           style: {
+               color: '#ffffff',
+           }
+       },
+   },
+   exporting: {
+       enabled: false
+   },
+   credits: {
+       enabled: false
+   },
+   tooltip: {
+       shared: true,
+       valueSuffix: ' point'
+   },
+   plotOptions: {
+       column: {
+           pointPadding: 0.2,
+           borderWidth: 0
+       }
+   },
+   series: [{
+       name: 'MODIS',
+       data: data_chart,
+       color: '#F0AC4E'
+ 
+   }]
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(mymap);
+
+var ghyb = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+  attributions: '&copy; <a href="https://www.google.co.th/maps/">Google</a>'
+});
+
+var gter = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+  attributions: '&copy; <a href="https://www.google.co.th/maps/">Google</a>'
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var prov = L.tileLayer.wms("http://119.59.125.189/mapservice/gis/wms?", {
+  layers: 'gis:prov_thailand',
+  format: 'image/png',
+  attribution: '&copy; <a href="https://mapedia.co.th/">MAPEDIA</a>',
+  transparent: true,
+}).addTo(mymap);
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var baseMaps = {
+   "CartoDB_DarkMatter": CartoDB_DarkMatter,
+   "Google Hybrid": ghyb,
+   "Google Terrain": gter
+};
+var overlayMaps = {
+   'prov': prov,
+   'map_hotspot': map_hotspot,
+   'hexgrid': hexgrid
+};
+L.control.layers(baseMaps, overlayMaps).addTo(mymap);
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<link rel="stylesheet" href="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.css" />
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://www.domoritz.de/leaflet-locatecontrol/src/L.Control.Locate.js"></script>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+L.control.locate({
+   strings: {
+       title: "หาตำแหน่งปัจจุบันของท่าน"
+   }
+}).addTo(mymap);
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+app.get('/api_point_hotspot', (req, res) => {
+
+   sql = 'select  * ,ST_AsGeoJSON(geom) AS geojson \
+   from modis_join   ';
+
+   let jsonFeatures = [];
+    db.query(sql).then((data) => {
+       var rows = data.rows;
+       rows.forEach((e) => {
+           let feature = {
+               type: 'Feature',
+               geometry: JSON.parse(e.geojson),
+               properties: e
+           };
+           jsonFeatures.push(feature);
+       });
+       let geoJson = {
+           type: 'FeatureCollection',
+           features: jsonFeatures
+       };
+       res.status(200).json(geoJson);
+   });
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+<script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var hexgrid = L.layerGroup()
+$.getJSON("/api_point_hotspot", function (data) {
+  console.log(data);
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var bbox = [105.637024930, 21.080008, 97.343701921, 5.192359]
+var cellSide = 50;
+var units = 'kilometers';
+var t_hexgrid = turf.hexGrid(bbox, cellSide, units);
+L.geoJson(t_hexgrid).addTo(hexgrid)
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var count = turf.count(t_hexgrid, data, "point", "z")
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+function GridStyle(feature) {
+   return {
+       fillColor: getColor(feature.properties.point),
+       weight: 0,
+       opacity: 1,
+       color: 'white',
+       fillOpacity: getopacity(feature.properties.point)
+   };
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+function getopacity(y) {
+   return y == 0 ? 0 :
+       1;
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////

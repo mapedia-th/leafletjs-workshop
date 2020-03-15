@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Leaflet Dashboard Hotspot</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+    <link rel="stylesheet" href="https://www.domoritz.de/leaflet-locatecontrol/dist/L.Control.Locate.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://www.domoritz.de/leaflet-locatecontrol/src/L.Control.Locate.js"></script>
+
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v2.0.2/turf.min.js'></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row content">
+            <div class="col-sm-3 sidenav">
+                <div class="img-p0">
+                    <img src="http://mapedia.co.th/assets/images/logo_2.png" alt="" width="30%"><br>
+                    <h4 class="card-header">
+                        <b>
+                            < Leaflet Dashboard Hotspot />
+                        </b>
+                    </h4>
+                </div>
+                <div class="list-group-item list-group-item-action flex-column align-items-start active"
+                    id="thai_count">
+                    <h5 class="card-header" id="all_point">จำนวนจุดความร้อนทั้งหมด</h5>
+
+                </div>
+
+
+                <div class="list-group-item list-group-item-action flex-column align-items-start active"
+                    id="thai_count">
+                    <h5 class="card-header">ค้นหาข้อมูล</h5>
+                    <div class="card-body">
+                        <form id="form_query">
+                            <div class="form-group">
+                                <label for="email">จังหวัด :</label>
+                                <select name="province" class="form-control" id="list_province">
+                                    <option value=""></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pwd">ช่วงเวลาเริ่มต้น :</label>
+                                <input type="date" class="form-control" name="start_date" value="2020-01-01">
+                            </div>
+                            <div class="form-group">
+                                <label for="pwd">ช่วงเวลาสิ้นสุด :</label>
+                                <input type="date" class="form-control" name="end_date" value="2020-04-01">
+                            </div>
+                            <br>
+                            <button type="submit" class="btn btn-warning btn-block">Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="list-group-item list-group-item-action flex-column align-items-start active">
+                    <div id="custom-map-controls" class="legend "></div>
+                </div>
+
+            </div>
+
+            <div class="col-sm-6">
+                <div id="mapid"></div>
+            </div>
+
+            <div class="col-sm-3 sidenav">
+                <div id="chart-container"></div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>จังหวัด</th>
+                            <th>จุดความร้อน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb_data">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        #mapid {
+            height: 650px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mapid"></div>
+    <script>
+        var mymap = L.map('mapid').setView([16.742239, 100.192186], 13);
+
+        var google_map = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 18,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }).addTo(mymap);
+
+        var Mapnik = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        });
+
+        var BlackAndWhite = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        });
+
+        var WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 18,
+        });
+
+        // var pin_icon = L.icon({
+        //     iconUrl: 'img/hospital.png',
+        //     iconSize: [50, 50]
+        // });
+
+        // var marker = L.marker([16.742239, 100.192186], { icon: pin_icon }).bindPopup("ตำแหน่ง GISTNU").addTo(mymap);
+
+        // var circle = L.circle([16.742239, 100.192186], {
+        //     color: 'red',  //สีของเส้นรอบวงกลมและพื้นที่วงกลม
+        //     fillColor: '#f03', //สีของพื้นที่วงกลม
+        //     fillOpacity: 0.5, //ความชัดหรือจางของพื้นที่วงกลม
+        //     radius: 500 //รัศมีวงกลม
+        // }
+        // ).addTo(mymap);
+        // var polyline = L.polyline([
+        //     [16.740973, 100.180833],
+        //     [16.752257, 100.186632],
+        //     [16.767959, 100.195481],
+        //     [16.760893, 100.215110]
+        // ], {
+        //     weight: 10,
+        //     color: 'red',
+        //     opacity: 1
+        // }
+        // ).addTo(mymap);
+        // var polygon = L.polygon([
+        //     [16.755351, 100.201217],
+        //     [16.753988, 100.198829],
+        //     [16.752619, 100.195854],
+        //     [16.744190, 100.199326],
+        //     [16.747721, 100.204935]
+        // ], {
+        //     weight: 10,
+        //     color: 'red',
+        //     opacity: 1
+        // }
+        // ).addTo(mymap);
+
+        var feature_geojson = {
+            "type": "FeatureCollection",
+            "features": [{
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        100.191535, 16.742497
+                    ]
+                },
+                "type": "Feature",
+                "properties": {
+                    "popupContent": ""
+                },
+            },
+            {
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        100.189683, 16.746268
+                    ]
+                },
+                "type": "Feature",
+                "properties": {
+                    "popupContent": ""
+                },
+            },
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": [
+                        [100.187191, 16.752161],
+                        [100.191857, 16.749687],
+                        [100.193959, 16.749917],
+                        [100.195122, 16.749386],
+                        [100.197566, 16.745193]
+                    ]
+                },
+                "properties": {
+                    "popupContent": ""
+                },
+                "id": 3
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "popupContent": ""
+                },
+                "geometry": {
+                    "type": "MultiPolygon",
+                    "coordinates": [
+                        [
+                            [
+                                [100.196309, 16.738786],
+                                [100.196277, 16.739724],
+                                [100.197370, 16.740401],
+                                [100.198430, 16.739785],
+                                [100.198833, 16.738139],
+                                [100.197274, 16.736706],
+                                [100.195104, 16.736229],
+                                [100.194606, 16.736892],
+                                [100.195249, 16.737524],
+                                [100.195314, 16.738386]
+                            ]
+                        ]
+                    ]
+                }
+
+
+            }
+            ]
+        };
+        var pin_icon = L.icon({
+            iconUrl: 'img/hospital.png',
+            iconSize: [50, 50]
+        });
+
+        var geojson = L.geoJSON([feature_geojson], {
+            pointToLayer: function (feature, latlng) {
+                return L.marker(latlng, { icon: pin_icon });
+            },
+            weight: 6,
+            color: "red",
+            opacity: 1,
+            fillColor: "#000099",
+            fillOpacity: 0.8,
+            onEachFeature: onEachFeature,
+        }).addTo(mymap);
+
+        function onEachFeature(feature, layer) {
+            var popupContent = feature.geometry.type;
+            layer.bindPopup(popupContent);
+        }
+
+        var province = L.tileLayer.wms('http://119.59.125.189/mapservice/gis/wms?', {
+            layers: 'gis:prov_thailand',
+            format: 'image/png',
+            transparent: true,
+            zIndex: 5,
+        });
+
+        $.getJSON("http://nucoop.nu.ac.th/1_api_map/api_turf_leaflet.php?type=api_hotspot", function (data) {
+            L.geoJson(data).addTo(mymap);
+        })
+
+        var baseLayers = {
+            "google_map": google_map,
+            "Mapnik": Mapnik,
+            "BlackAndWhite": BlackAndWhite,
+            "WorldImagery": WorldImagery
+        };
+        var overlays = {
+            "geojson": geojson,
+            "province": province
+        };
+
+        L.control.layers(baseLayers, overlays, { collapsed: false }).addTo(mymap);
+
+    </script>
+</body>
+
+</html>

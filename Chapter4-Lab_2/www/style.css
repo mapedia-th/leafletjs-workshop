@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css?family=Kanit&display=swap');
+ 
+body{
+   font-family: 'Kanit', sans-serif;
+}
+.sidenav   {
+   border-radius: 20px;
+   box-shadow: 1px 2px 4px rgba(0, 0, 0, .5);
+   width: 30%;
+   background-color: #ffffff;
+   height: 80%;
+   z-index: 1;
+   position: fixed;
+   margin-right: 5%;
+   margin-top: 2%;
+   margin-left: 5%;
+   padding-right: 10px;
+   padding-left: 10px;
+   padding-top: 10px;
+}
+ 
+footer {
+   background-color: #555;
+   color: white;
+   padding: 15px;
+}

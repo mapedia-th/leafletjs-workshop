@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>LEAFLETJS QUERY POSTGIS</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <script src="https://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row content">
+
+            <div class=" sidenav text-center">
+                <img src="http://mapedia.co.th/assets/images/logo_1_1024.png" alt="" width="40%">
+                <h4>
+                    < LEAFLETJS QUERY POSTGIS />
+                </h4>
+                <br>
+                <form id="form_query">
+                    <div class="form-group">
+                        <label for="text">คัดกรองข้อมูลโรค</label>
+                        <select name="disease" id="" class="form-control">
+                            <option value="">ทั้งหมด</option>
+                            <option value="p_ht">ความดันโลหิตสูง</option>
+                            <option value="p_dm">เบาหวาน</option>
+                            <option value="p_hf">โรคหัวใจ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="text">เลือกเพศ</label>
+                        <select name="gender" id="" class="form-control">
+                            <option value="%">ทั้งหมด</option>
+                            <option value="male">ชาย</option>
+                            <option value="female">หญิง</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="text">กำหนดรัศมีรอบโรงพยาบาล</label>
+                        <input type="number" class="form-control" value="0" name="radius">
+                    </div>
+                    <br>
+                    <button class="btn btn-success btn-block">SEARCH</button>
+                </form>
+
+
+            </div>
+
+            <div>
+                <div id="mapid"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="container-fluid">
+        <p>MAPEDIA.co.th</p>
+    </footer>
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>

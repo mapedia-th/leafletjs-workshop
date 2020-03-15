@@ -1,0 +1,588 @@
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const app = express();
+
+app.use(cors());
+app.options('*', cors());
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+   extended: true
+}));
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+const Pool = require('pg').Pool
+const db = new Pool({
+   user: '',
+   host: '',
+   database: '',
+   password: '',
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+app.use(express.static(__dirname + '/www'));
+app.listen(3000, () => {
+   console.log('run on port 3000..')
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+app.get('/api_household', (req, res) => {
+ 
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+SELECT *,ST_AsGeoJSON(geom) AS geojson  FROM patient_households 
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+let jsonFeatures = [];
+   db.query(sql).then((data) => {
+       var rows = data.rows;
+       rows.forEach((e) => {
+           let feature = {
+               type: 'Feature',
+               geometry: JSON.parse(e.geojson),
+               properties: e
+           };
+           jsonFeatures.push(feature);
+       });
+       let geoJson = {
+           type: 'FeatureCollection',
+           features: jsonFeatures
+       };
+       res.status(200).json(geoJson);
+   });
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+   <title>LEAFLETJS QUERY POSTGIS</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+ 
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+ 
+   <link rel="stylesheet" href="style.css">
+</head>
+ 
+<body>
+ 
+   <div class="container-fluid">
+       <div class="row content">
+ 
+           <div class=" sidenav text-center">
+               <img src="http://mapedia.co.th/assets/images/logo_1_1024.png" alt="" width="40%">
+               <h4>
+                   < LEAFLETJS QUERY POSTGIS />
+               </h4>
+               <br>
+             
+ 
+           </div>
+ 
+           <div>
+               <div id="mapid"></div>
+           </div>
+       </div>
+   </div>
+ 
+   <footer class="container-fluid">
+       <p>MAPEDIA.co.th</p>
+   </footer>
+ 
+   <script src="app.js"></script>
+ 
+</body>
+ 
+</html>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var mymap = L.map('mapid').setView([16.821317, 100.235372], 12);
+ 
+var mapnik = L.tileLayer('http://{s}.tiles.wmflabs.org/
+bw-mapnik/{z}/{x}/{y}.png', {
+   maxZoom: 18,
+}).addTo(mymap);
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<link rel="stylesheet" href="https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
+<script src="https://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var household = L.markerClusterGroup().addTo(mymap)
+$.getJSON("/api_household", function (data) {
+
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var household_icon = L.icon({
+       iconUrl: '',
+       iconSize: [40, 40]
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+   for (var i = 0; i < data.features.length; i++) {
+       var a = data.features[i].geometry.coordinates
+       var propertie = data.features[i].properties
+ 
+    
+   }
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var popup = '<table class="table">\
+       <thead>\
+         <tr>\
+           <th>คำอธิบาย</th>\
+           <th>ข้อมูล</th>\
+         </tr>\
+       </thead>\
+       <tbody>\
+       <tr>\
+         <td>รูปประจำตัว</td>\
+         <td> <img src=" '+ propertie.pic_medium + '  " width="100%"></td>\
+       </tr>\
+       <tr>\
+         <td>ชื่อ - นามสกุล</td>\
+         <td>'+ propertie.fname + ' ' + propertie.sname + '</td>\
+       </tr>\
+       <tr>\
+         <td>เพศ</td>\
+         <td>'+ propertie.gender + '</td>\
+       </tr>\
+       <tr>\
+         <td>อายุ</td>\
+         <td>'+ propertie.age + '</td>\
+       </tr>\
+       <tr>\
+         <td>wt</td>\
+         <td>'+ propertie.wt + '</td>\
+       </tr>\
+       <tr>\
+         <td>ht</td>\
+         <td>'+ propertie.ht + '</td>\
+       </tr>\
+       <tr>\
+         <td>tb_th</td>\
+         <td>'+ propertie.tb_th + '</td>\
+       </tr>\
+       <tr>\
+         <td>ap_th</td>\
+         <td>'+ propertie.ap_th + '</td>\
+       </tr>\
+       </tbody>\
+     </table>'
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var marker = L.marker(new L.LatLng(a[1], a[0]), { icon:  })
+           .bindPopup(popup)
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+app.get('/api_hospital', (req, res) => {
+
+   sql = '';
+
+   let jsonFeatures = [];
+   db.query(sql).then((data) => {
+       var rows = data.rows;
+       rows.forEach((e) => {
+           let feature = {
+               type: 'Feature',
+               geometry: JSON.parse(e.geojson),
+               properties: e
+           };
+           jsonFeatures.push(feature);
+       });
+       let geoJson = {
+           type: 'FeatureCollection',
+           features: jsonFeatures
+       };
+       res.status(200).json(geoJson);
+   });
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var hospital_data = []
+$.getJSON("/api_hospital", function (data) {
+   L.geoJson(data, {
+       pointToLayer: function (feature, latlng) {
+           var hospital_icon = L.icon({
+               iconUrl: 'img/hospital.png',
+               iconSize: [40, 40]
+           });
+           return new L.marker([latlng.lat, latlng.lng], {
+               opacity: 1,
+               icon: hospital_icon,
+           });
+       },
+   }).addTo(hospital)
+   hospital_data = data
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+<form id="form_query">
+    <div class="form-group">
+        <label for="text">คัดกรองข้อมูลโรค</label>
+
+        <select name="disease" id="" class="form-control">
+            <option value="">ทั้งหมด</option>
+            <option value="p_ht">ความดันโลหิตสูง</option>
+            <option value="p_dm">เบาหวาน</option>
+            <option value="p_hf">โรคหัวใจ</option>
+        </select>
+
+    </div>
+    <div class="form-group">
+        <label for="text">เลือกเพศ</label>
+
+        <select name="gender" id="" class="form-control">
+            <option value="%">ทั้งหมด</option>
+            <option value="male">ชาย</option>
+            <option value="female">หญิง</option>
+        </select>
+
+    </div>
+    <div class="form-group">
+        <label for="text">กำหนดรัศมีรอบโรงพยาบาล (m)</label>
+
+        <input type="number" class="form-control" value="0" name="radius">
+
+    </div>
+    <br>
+    <button class="btn btn-success btn-block">SEARCH</button>
+</form>
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var buffer = L.layerGroup().addTo(mymap)
+$("#form_query").submit(function (event) {
+   event.preventDefault();
+
+   var disease = event.target.disease.value
+   var gender = event.target.gender.value
+   var radius = event.target.radius.value
+
+
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+   $.ajax({
+       url: ' ',
+       method: 'post',
+       data: ({
+           disease: disease,
+           gender: gender,
+           radius: radius
+       }),
+       success: function (data) {
+ 
+       }, error: function () {
+           console.log('error  data!');
+       }
+   })
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+app.post('/house_search', async (req, res) => {
+   const {
+       disease,
+       gender,
+       radius
+   } = req.body;
+ 
+})
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+if (radius != 0) {
+ 
+       let jsonFeatures = [];
+       db.query(sql).then((data) => {
+           var rows = data.rows;
+           rows.forEach((e) => {
+               let feature = {
+                   type: 'Feature',
+                   geometry: JSON.parse(e.geojson),
+                   properties: e
+               };
+               jsonFeatures.push(feature);
+           });
+           let geoJson = {
+               type: 'FeatureCollection',
+               features: jsonFeatures
+           };
+           res.status(200).json(geoJson);
+       });
+   }
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+SELECT *,ST_AsGeoJSON(a.geom) AS geojson  FROM patient_households a 
+inner join hospital b on ST_DWithin(a.geom::geography, b.geom::geography, $2) 
+where p_ht = 1 and  gender like $1 
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+if (disease == 'p_ht') {
+    var text = "SELECT *,ST_AsGeoJSON(a.geom) AS geojson  FROM patient_households a \
+    inner join hospital b on ST_DWithin(a.geom::geography, b.geom::geography, $2) \
+    where p_ht = 1 and  gender like $1  "
+
+} else if (disease == 'p_dm') {
+    var text = "SELECT *,ST_AsGeoJSON(a.geom) AS geojson  FROM patient_households a \
+    inner join hospital b on ST_DWithin(a.geom::geography, b.geom::geography, $2) \
+    where p_dm = 1 and  gender like $1 "
+
+} else if (disease == 'p_hf') {
+    var text = "SELECT *,ST_AsGeoJSON(a.geom) AS geojson  FROM patient_households a \
+    inner join hospital b on ST_DWithin(a.geom::geography, b.geom::geography, $2) \
+    where p_hf = 1 and  gender like $1 "
+
+} else {
+    var text = "SELECT *,ST_AsGeoJSON(a.geom) AS geojson  FROM patient_households a \
+    inner join hospital b on ST_DWithin(a.geom::geography, b.geom::geography, $2) \
+    where gender like $1 "
+}
+
+const sql = {
+    text: text,
+    values: [`${gender}`, radius],
+}
+console.log(sql);
+
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+else {
+ 
+ 
+    let jsonFeatures = [];
+    db.query(sql).then((data) => {
+        var rows = data.rows;
+        rows.forEach((e) => {
+            let feature = {
+                type: 'Feature',
+                geometry: JSON.parse(e.geojson),
+                properties: e
+            };
+            jsonFeatures.push(feature);
+        });
+        let geoJson = {
+            type: 'FeatureCollection',
+            features: jsonFeatures
+        };
+        res.status(200).json(geoJson);
+    });
+
+}
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+SELECT *,ST_AsGeoJSON(geom) AS geojson  FROM patient_households   where p_ht = 1 and  gender like $1
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+if (disease == 'p_ht') {
+    var text = "SELECT *,ST_AsGeoJSON(geom) AS geojson  FROM patient_households   where p_ht = 1 and  gender like $1  "
+
+} else if (disease == 'p_dm') {
+    var text = "SELECT *,ST_AsGeoJSON(geom) AS geojson  FROM patient_households where p_dm = 1 and  gender like $1 "
+
+} else if (disease == 'p_hf') {
+    var text = "SELECT *,ST_AsGeoJSON(geom) AS geojson  FROM patient_households  where p_hf = 1 and  gender like $1 "
+
+} else {
+    var text = "SELECT *,ST_AsGeoJSON(geom) AS geojson  FROM patient_households where gender like $1 "
+}
+const sql = {
+    text: text,
+    values: [`${gender}`],
+}
+console.log(sql);
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+    console.log(data);
+           var household_icon = L.icon({
+               iconUrl: 'img/home.png',
+               iconSize: [40, 40]
+           });
+ 
+           for (var i = 0; i < data.features.length; i++) {
+               var a = data.features[i].geometry.coordinates
+               var propertie = data.features[i].properties
+ 
+               var popup = '<table class="table">\
+               <thead>\
+                 <tr>\
+                   <th>คำอธิบาย</th>\
+                   <th>ข้อมูล</th>\
+                 </tr>\
+               </thead>\
+               <tbody>\
+               <tr>\
+                 <td>รูปประจำตัว</td>\
+                 <td> <img src=" '+ propertie.pic_medium + '  " width="100%"></td>\
+               </tr>\
+               <tr>\
+                 <td>ชื่อ - นามสกุล</td>\
+                 <td>'+ propertie.fname + ' ' + propertie.sname + '</td>\
+               </tr>\
+               <tr>\
+                 <td>เพศ</td>\
+                 <td>'+ propertie.gender + '</td>\
+               </tr>\
+               <tr>\
+                 <td>อายุ</td>\
+                 <td>'+ propertie.age + '</td>\
+               </tr>\
+               <tr>\
+                 <td>wt</td>\
+                 <td>'+ propertie.wt + '</td>\
+               </tr>\
+               <tr>\
+                 <td>ht</td>\
+                 <td>'+ propertie.ht + '</td>\
+               </tr>\
+               <tr>\
+                 <td>tb_th</td>\
+                 <td>'+ propertie.tb_th + '</td>\
+               </tr>\
+               <tr>\
+                 <td>ap_th</td>\
+                 <td>'+ propertie.ap_th + '</td>\
+               </tr>\
+               </tbody>\
+             </table>'
+
+               var marker = L.marker(new L.LatLng(a[1], a[0]), { icon: household_icon })
+                   .bindPopup(popup)
+                   .addTo(household)
+}
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var mapnik = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+   maxZoom: 18,
+}).addTo(mymap);
+
+var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+   subdomains: 'abcd',
+   maxZoom: 19
+})
+
+var ghyb = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+   attributions: '&copy; <a href="https://www.google.co.th/maps/">Google</a>'
+});
+
+var gter = L.tileLayer('https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+   attributions: '&copy; <a href="https://www.google.co.th/maps/">Google</a>'
+});
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var baseMaps = {
+   "mapnik": mapnik,
+   "CartoDB_DarkMatter": CartoDB_DarkMatter,
+   "Google Hybrid": ghyb,
+   "Google Terrain": gter
+};
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+var overlayMaps = {
+   'household': household,
+   'hospital': hospital,
+   'buffer': buffer
+};
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
+
+
+L.control.layers(baseMaps, overlayMaps, { collapsed: false }).addTo(mymap);
+
+
+---------///////////---------///////////---------///////////---------///////////---------///////////
